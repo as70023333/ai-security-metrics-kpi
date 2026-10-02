@@ -1,0 +1,34 @@
+name: AI Security Metrics Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: "0 6 * * 1" # Weekly run every Monday at 6 AM UTC
+  workflow_dispatch: # Enables manual trigger button in GitHub UI
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Execute Metric Collector Script
+        run: |
+          python src/collector.py > REPORT.md
+          cat REPORT.md
+
+      - name: Save Report Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-ai-security-brief
+          path: REPORT.md
